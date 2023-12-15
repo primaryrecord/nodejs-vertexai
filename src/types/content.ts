@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+import { GoogleAuth } from 'google-auth-library';
+
 /**
  * Params used to initialize the Vertex SDK
  */
@@ -22,6 +24,7 @@ export declare interface VertexInit {
   project: string;
   location: string;
   apiEndpoint?: string;
+  auth?: GoogleAuth;
 }
 
 /**

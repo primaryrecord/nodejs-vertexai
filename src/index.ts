@@ -44,12 +44,13 @@ export * from './types';
  * @param apiEndpoint Optional. The base Vertex AI endpoint to use for the
  *     request. If not provided, the default regionalized endpoint (i.e.
  * us-central1-aiplatform.googleapis.com) will be used.
+ * @param auth Optional. A GoogleAuth object used to authenticate requests.
  */
 export class VertexAI {
   public preview: VertexAI_Internal;
 
   constructor(init: VertexInit) {
-    this.preview = new VertexAI_Internal(init.project, init.location, init.apiEndpoint);
+    this.preview = new VertexAI_Internal(init.project, init.location, init.apiEndpoint, init.auth);
   }
 }
 
@@ -61,21 +62,26 @@ export class VertexAI {
  * @param apiEndpoint The base Vertex AI endpoint to use for the request. If
  *        not provided, the default regionalized endpoint
  *        (i.e. us-central1-aiplatform.googleapis.com) will be used.
+ * @param auth Optional. A GoogleAuth object used to authenticate requests.
  */
 export class VertexAI_Internal {
-  protected googleAuth: GoogleAuth = new GoogleAuth({
-    scopes: 'https://www.googleapis.com/auth/cloud-platform',
-  });
+  protected googleAuth: GoogleAuth;
   private tokenInternalPromise?: Promise<any>;
 
   constructor(
     readonly project: string,
     readonly location: string,
     readonly apiEndpoint?: string,
+    auth?: GoogleAuth,
   ) {
     this.project = project;
     this.location = location;
     this.apiEndpoint = apiEndpoint;
+    this.googleAuth =
+      auth ??
+      new GoogleAuth({
+        scopes: 'https://www.googleapis.com/auth/cloud-platform',
+      });
   }
 
   get token(): Promise<any> {
