@@ -18,7 +18,7 @@
 /**
  * Modifications made by Primary Record in 2023.
  * These modifications are licensed under the Apache License, Version 2.0.
- * Modifications: formatting changes, add auth parameter
+ * Modifications: formatting changes, add auth parameter, add tools, add function call part
  */
 
 import { GoogleAuth } from 'google-auth-library';
@@ -34,10 +34,28 @@ export declare interface VertexInit {
 }
 
 /**
+ * A declaration of a function that can be called to generate content
+ */
+export declare interface FunctionDeclaration {
+  name: string;
+  description?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  parameters?: Record<string, any>;
+}
+
+/**
+ * Tool used for generating content
+ */
+export declare interface Tool {
+  function_declarations: FunctionDeclaration[];
+}
+
+/**
  * Params used by the generateContent endpoint
  */
 export declare interface GenerateContentRequest extends BaseModelParams {
   contents: Content[];
+  tools?: Tool[];
 }
 
 /**
@@ -156,7 +174,14 @@ export interface FileDataPart extends BasePart {
   file_data: FileData;
 }
 
-export declare type Part = TextPart | InlineDataPart | FileDataPart;
+export interface FunctionCallPart extends BasePart {
+  text?: never;
+  name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  args: Record<string, any>;
+}
+
+export declare type Part = TextPart | InlineDataPart | FileDataPart | FunctionCallPart;
 
 /**
  * Raw media bytes sent directly in the request. Text should not be sent as

@@ -18,7 +18,7 @@
 /**
  * Modifications made by Primary Record in 2023.
  * These modifications are licensed under the Apache License, Version 2.0.
- * Modifications: formatting changes
+ * Modifications: formatting changes, fixed non-text parts bug
  */
 
 import {
@@ -117,7 +117,7 @@ function aggregateResponses(responses: GenerateContentResponse[]): GenerateConte
           index: response.candidates[i].index,
           content: {
             role: response.candidates[i].content.role,
-            parts: [{ text: '' }],
+            parts: [],
           },
         } as GenerateContentCandidate;
       }
@@ -143,7 +143,15 @@ function aggregateResponses(responses: GenerateContentResponse[]): GenerateConte
       if ('parts' in response.candidates[i].content) {
         for (const part of response.candidates[i].content.parts) {
           if (part.text) {
-            aggregatedResponse.candidates[i].content.parts[0].text += part.text;
+            // Find existing part with text and add to it, otherwise make a new part
+            const existingPart = aggregatedResponse.candidates[i].content.parts.find((p) => p.text);
+            if (existingPart) {
+              existingPart.text += part.text;
+            } else {
+              aggregatedResponse.candidates[i].content.parts.push(part);
+            }
+          } else {
+            aggregatedResponse.candidates[i].content.parts.push(part);
           }
         }
       }

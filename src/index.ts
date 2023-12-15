@@ -18,7 +18,7 @@
 /**
  * Modifications made by Primary Record in 2023.
  * These modifications are licensed under the Apache License, Version 2.0.
- * Modifications: formatting changes, add auth parameter
+ * Modifications: formatting changes, add auth parameter, add tools to chat, fix bug with chat options
  */
 
 import { GoogleAuth } from 'google-auth-library';
@@ -35,6 +35,7 @@ import {
   Part,
   SafetySetting,
   StreamGenerateContentResult,
+  Tool,
   VertexInit,
 } from './types/content';
 import { GoogleAuthError } from './types/errors';
@@ -125,6 +126,7 @@ export declare interface StartChatParams {
   safety_settings?: SafetySetting[];
   generation_config?: GenerationConfig;
   stream?: boolean;
+  tools?: Tool[];
 }
 
 // StartChatSessionRequest and ChatSession are defined here instead of in
@@ -153,6 +155,7 @@ export class ChatSession {
 
   generation_config?: GenerationConfig;
   safety_settings?: SafetySetting[];
+  tools?: Tool[];
 
   get history(): Content[] {
     return this.historyInternal;
@@ -164,6 +167,9 @@ export class ChatSession {
     this._model_instance = request._model_instance;
     this.historyInternal = request.history ?? [];
     this._vertex_instance = request._vertex_instance;
+    this.generation_config = request.generation_config;
+    this.safety_settings = request.safety_settings;
+    this.tools = request.tools;
   }
 
   async sendMessage(request: string | Array<string | Part>): Promise<GenerateContentResult> {
@@ -172,6 +178,7 @@ export class ChatSession {
       contents: this.historyInternal.concat([newContent]),
       safety_settings: this.safety_settings,
       generation_config: this.generation_config,
+      tools: this.tools,
     };
 
     const generateContentResult = await this._model_instance.generateContent(generateContentrequest);
@@ -278,6 +285,7 @@ export class GenerativeModel {
       contents: request.contents,
       generation_config: request.generation_config ?? this.generation_config,
       safety_settings: request.safety_settings ?? this.safety_settings,
+      tools: request.tools,
     };
 
     let response;
@@ -323,6 +331,7 @@ export class GenerativeModel {
       contents: request.contents,
       generation_config: request.generation_config ?? this.generation_config,
       safety_settings: request.safety_settings ?? this.safety_settings,
+      tools: request.tools,
     };
 
     let response;
@@ -389,6 +398,7 @@ export class GenerativeModel {
       history: request.history,
       generation_config: request.generation_config ?? this.generation_config,
       safety_settings: request.safety_settings ?? this.safety_settings,
+      tools: request.tools,
       _vertex_instance: this._vertex_instance,
       _model_instance: this,
     };
