@@ -15,6 +15,12 @@
  * limitations under the License.
  */
 
+/**
+ * Modifications made by Primary Record in 2023.
+ * These modifications are licensed under the Apache License, Version 2.0.
+ * Modifications: formatting changes, add auth parameter
+ */
+
 import { GoogleAuth } from 'google-auth-library';
 
 /**
