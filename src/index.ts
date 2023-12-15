@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-/* tslint:disable */
-import {GoogleAuth} from 'google-auth-library';
+import { GoogleAuth } from 'google-auth-library';
 
-import {processNonStream, processStream} from './process_stream';
+import { processNonStream, processStream } from './process_stream';
 import {
   Content,
   CountTokensRequest,
@@ -32,8 +31,8 @@ import {
   StreamGenerateContentResult,
   VertexInit,
 } from './types/content';
-import {GoogleAuthError} from './types/errors';
-import {constants, postRequest} from './util';
+import { GoogleAuthError } from './types/errors';
+import { constants, postRequest } from './util';
 export * from './types';
 
 /**
@@ -50,11 +49,7 @@ export class VertexAI {
   public preview: VertexAI_Internal;
 
   constructor(init: VertexInit) {
-    this.preview = new VertexAI_Internal(
-      init.project,
-      init.location,
-      init.apiEndpoint
-    );
+    this.preview = new VertexAI_Internal(init.project, init.location, init.apiEndpoint);
   }
 }
 
@@ -66,7 +61,7 @@ export class VertexAI {
  * @param apiEndpoint The base Vertex AI endpoint to use for the request. If
  *        not provided, the default regionalized endpoint
  *        (i.e. us-central1-aiplatform.googleapis.com) will be used.
-*/
+ */
 export class VertexAI_Internal {
   protected googleAuth: GoogleAuth = new GoogleAuth({
     scopes: 'https://www.googleapis.com/auth/cloud-platform',
@@ -76,7 +71,7 @@ export class VertexAI_Internal {
   constructor(
     readonly project: string,
     readonly location: string,
-    readonly apiEndpoint?: string
+    readonly apiEndpoint?: string,
   ) {
     this.project = project;
     this.location = location;
@@ -87,33 +82,26 @@ export class VertexAI_Internal {
     if (this.tokenInternalPromise) {
       return this.tokenInternalPromise;
     }
-    const credential_error_message = "\nUnable to authenticate your request\
+    const credential_error_message =
+      '\nUnable to authenticate your request\
         \nDepending on your run time environment, you can get authentication by\
         \n- if in local instance or cloud shell: `!gcloud auth login`\
         \n- if in Colab:\
         \n    -`from google.colab import auth`\
         \n    -`auth.authenticate_user()`\
-        \n- if in service account or other: please follow guidance in https://cloud.google.com/docs/authentication";
-    const tokenPromise = this.googleAuth.getAccessToken().catch(
-          e => {
-            throw new GoogleAuthError(`${credential_error_message}\n${e}`);
-          }
-        );
+        \n- if in service account or other: please follow guidance in https://cloud.google.com/docs/authentication';
+    const tokenPromise = this.googleAuth.getAccessToken().catch((e) => {
+      throw new GoogleAuthError(`${credential_error_message}\n${e}`);
+    });
     return tokenPromise;
   }
 
   getGenerativeModel(modelParams: ModelParams): GenerativeModel {
     if (modelParams.generation_config) {
-      modelParams.generation_config =
-          validateGenerationConfig(modelParams.generation_config);
+      modelParams.generation_config = validateGenerationConfig(modelParams.generation_config);
     }
 
-    return new GenerativeModel(
-      this,
-      modelParams.model,
-      modelParams.generation_config,
-      modelParams.safety_settings
-    );
+    return new GenerativeModel(this, modelParams.model, modelParams.generation_config, modelParams.safety_settings);
   }
 }
 
@@ -166,9 +154,7 @@ export class ChatSession {
     this._vertex_instance = request._vertex_instance;
   }
 
-  async sendMessage(
-    request: string | Array<string | Part>
-  ): Promise<GenerateContentResult> {
+  async sendMessage(request: string | Array<string | Part>): Promise<GenerateContentResult> {
     const newContent: Content = formulateNewContent(request);
     const generateContentrequest: GenerateContentRequest = {
       contents: this.historyInternal.concat([newContent]),
@@ -176,15 +162,12 @@ export class ChatSession {
       generation_config: this.generation_config,
     };
 
-    const generateContentResult = await this._model_instance.generateContent(
-      generateContentrequest
-    );
+    const generateContentResult = await this._model_instance.generateContent(generateContentrequest);
     const generateContentResponse = await generateContentResult.response;
     // Only push the latest message to history if the response returned a result
     if (generateContentResponse.candidates.length !== 0) {
       this.historyInternal.push(newContent);
-      const contentFromAssistant =
-        generateContentResponse.candidates[0].content;
+      const contentFromAssistant = generateContentResponse.candidates[0].content;
       if (!contentFromAssistant.role) {
         contentFromAssistant.role = constants.MODEL_ROLE;
       }
@@ -194,21 +177,19 @@ export class ChatSession {
       throw new Error('Did not get a candidate from the model');
     }
 
-    return Promise.resolve({response: generateContentResponse});
+    return Promise.resolve({ response: generateContentResponse });
   }
-  
+
   async appendHistory(
-      streamGenerateContentResultPromise: Promise<StreamGenerateContentResult>,
-      newContent: Content,
-      ): Promise<void> {
+    streamGenerateContentResultPromise: Promise<StreamGenerateContentResult>,
+    newContent: Content,
+  ): Promise<void> {
     const streamGenerateContentResult = await streamGenerateContentResultPromise;
-    const streamGenerateContentResponse =
-        await streamGenerateContentResult.response;
+    const streamGenerateContentResponse = await streamGenerateContentResult.response;
     // Only push the latest message to history if the response returned a result
     if (streamGenerateContentResponse.candidates.length !== 0) {
       this.historyInternal.push(newContent);
-      const contentFromAssistant =
-        streamGenerateContentResponse.candidates[0].content;
+      const contentFromAssistant = streamGenerateContentResponse.candidates[0].content;
       if (!contentFromAssistant.role) {
         contentFromAssistant.role = constants.MODEL_ROLE;
       }
@@ -219,8 +200,7 @@ export class ChatSession {
     }
   }
 
-  async sendMessageStream(request: string|Array<string|Part>):
-      Promise<StreamGenerateContentResult> {
+  async sendMessageStream(request: string | Array<string | Part>): Promise<StreamGenerateContentResult> {
     const newContent: Content = formulateNewContent(request);
     const generateContentrequest: GenerateContentRequest = {
       contents: this.historyInternal.concat([newContent]),
@@ -228,9 +208,7 @@ export class ChatSession {
       generation_config: this.generation_config,
     };
 
-    const streamGenerateContentResultPromise =
-        this._model_instance.generateContentStream(
-            generateContentrequest);
+    const streamGenerateContentResultPromise = this._model_instance.generateContentStream(generateContentrequest);
 
     this._send_stream_promise = this.appendHistory(streamGenerateContentResultPromise, newContent);
     return streamGenerateContentResultPromise;
@@ -254,7 +232,7 @@ export class GenerativeModel {
     vertex_instance: VertexAI_Internal,
     model: string,
     generation_config?: GenerationConfig,
-    safety_settings?: SafetySetting[]
+    safety_settings?: SafetySetting[],
   ) {
     this._vertex_instance = vertex_instance;
     this.model = model;
@@ -267,19 +245,15 @@ export class GenerativeModel {
    * @param request A GenerateContentRequest object with the request contents.
    * @return The GenerateContentResponse object with the response candidates.
    */
-  async generateContent(
-    request: GenerateContentRequest
-  ): Promise<GenerateContentResult> {
+  async generateContent(request: GenerateContentRequest): Promise<GenerateContentResult> {
     validateGcsInput(request.contents);
 
     if (request.generation_config) {
-      request.generation_config =
-          validateGenerationConfig(request.generation_config);
+      request.generation_config = validateGenerationConfig(request.generation_config);
     }
 
     if (!this._use_non_stream) {
-      const streamGenerateContentResult: StreamGenerateContentResult =
-          await this.generateContentStream(request);
+      const streamGenerateContentResult: StreamGenerateContentResult = await this.generateContentStream(request);
       const result: GenerateContentResult = {
         response: await streamGenerateContentResult.response,
       };
@@ -324,13 +298,11 @@ export class GenerativeModel {
    * @param request A GenerateContentRequest object with the request contents.
    * @return The GenerateContentResponse object with the response candidates.
    */
-  async generateContentStream(request: GenerateContentRequest):
-      Promise<StreamGenerateContentResult> {
+  async generateContentStream(request: GenerateContentRequest): Promise<StreamGenerateContentResult> {
     validateGcsInput(request.contents);
 
     if (request.generation_config) {
-      request.generation_config =
-          validateGenerationConfig(request.generation_config);
+      request.generation_config = validateGenerationConfig(request.generation_config);
     }
 
     const publisherModelEndpoint = `publishers/google/models/${this.model}`;
@@ -417,18 +389,18 @@ function formulateNewContent(request: string | Array<string | Part>): Content {
   let newParts: Part[] = [];
 
   if (typeof request === 'string') {
-    newParts = [{text: request}];
+    newParts = [{ text: request }];
   } else if (Array.isArray(request)) {
     for (const item of request) {
       if (typeof item === 'string') {
-        newParts.push({text: item});
+        newParts.push({ text: item });
       } else {
         newParts.push(item);
       }
     }
   }
 
-  const newContent: Content = {role: constants.USER_ROLE, parts: newParts};
+  const newContent: Content = { role: constants.USER_ROLE, parts: newParts };
   return newContent;
 }
 
@@ -438,15 +410,16 @@ function validateGcsInput(contents: Content[]) {
       if ('file_data' in part) {
         const uri = part['file_data']['file_uri'];
         if (!uri.startsWith('gs://')) {
-          throw new URIError(`Found invalid Google Cloud Storage URI ${uri}, Google Cloud Storage URIs must start with gs://`);
+          throw new URIError(
+            `Found invalid Google Cloud Storage URI ${uri}, Google Cloud Storage URIs must start with gs://`,
+          );
         }
       }
     }
   }
 }
 
-function validateGenerationConfig(generation_config: GenerationConfig):
-    GenerationConfig {
+function validateGenerationConfig(generation_config: GenerationConfig): GenerationConfig {
   if ('top_k' in generation_config) {
     if (!(generation_config.top_k! > 0) || !(generation_config.top_k! <= 40)) {
       delete generation_config.top_k;

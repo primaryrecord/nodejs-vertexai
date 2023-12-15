@@ -15,18 +15,22 @@
  * limitations under the License.
  */
 
-import {CitationSource, GenerateContentCandidate, GenerateContentResponse, GenerateContentResult, StreamGenerateContentResult,} from './types/content';
+import {
+  CitationSource,
+  GenerateContentCandidate,
+  GenerateContentResponse,
+  GenerateContentResult,
+  StreamGenerateContentResult,
+} from './types/content';
 
 // eslint-disable-next-line no-useless-escape
 const responseLineRE = /^data\: (.*)\r\n/;
 
 // TODO: set a better type for `reader`. Setting it to
 // `ReadableStreamDefaultReader` results in an error (diagnostic code 2304)
-async function* generateResponseSequence(
-  reader2: any
-): AsyncGenerator<GenerateContentResponse> {
+async function* generateResponseSequence(reader2: any): AsyncGenerator<GenerateContentResponse> {
   while (true) {
-    const {value, done} = await reader2.read();
+    const { value, done } = await reader2.read();
     if (done) {
       break;
     }
@@ -39,9 +43,7 @@ async function* generateResponseSequence(
  * chunks, returning a new stream that provides a single complete
  * GenerateContentResponse in each iteration.
  */
-function readFromReader(
-  reader: ReadableStreamDefaultReader
-): ReadableStream<GenerateContentResponse> {
+function readFromReader(reader: ReadableStreamDefaultReader): ReadableStream<GenerateContentResponse> {
   let currentText = '';
   const stream = new ReadableStream<GenerateContentResponse>({
     start(controller) {
@@ -49,7 +51,7 @@ function readFromReader(
       function pump(): Promise<(() => Promise<void>) | undefined> {
         let streamReader;
         try {
-          streamReader = reader.read().then(({value, done}) => {
+          streamReader = reader.read().then(({ value, done }) => {
             if (done) {
               controller.close();
               return;
@@ -60,9 +62,7 @@ function readFromReader(
             if (match) {
               let parsedResponse: GenerateContentResponse;
               try {
-                parsedResponse = JSON.parse(
-                  match[1]
-                ) as GenerateContentResponse;
+                parsedResponse = JSON.parse(match[1]) as GenerateContentResponse;
               } catch (e) {
                 throw new Error(`Error parsing JSON response: "${match[1]}"`);
               }
@@ -70,9 +70,7 @@ function readFromReader(
               if ('candidates' in parsedResponse) {
                 controller.enqueue(parsedResponse);
               } else {
-                console.warn(
-                  `No candidates in this response: ${parsedResponse}`
-                );
+                console.warn(`No candidates in this response: ${parsedResponse}`);
                 controller.enqueue({
                   candidates: [],
                 });
@@ -94,15 +92,11 @@ function readFromReader(
  * Aggregates an array of `GenerateContentResponse`s into a single
  * GenerateContentResponse.
  */
-function aggregateResponses(
-  responses: GenerateContentResponse[]
-): GenerateContentResponse {
+function aggregateResponses(responses: GenerateContentResponse[]): GenerateContentResponse {
   const lastResponse = responses[responses.length - 1];
 
   if (lastResponse === undefined) {
-    throw new Error(
-      'Error processing stream because the response is undefined'
-    );
+    throw new Error('Error processing stream because the response is undefined');
   }
 
   const aggregatedResponse: GenerateContentResponse = {
@@ -116,33 +110,27 @@ function aggregateResponses(
           index: response.candidates[i].index,
           content: {
             role: response.candidates[i].content.role,
-            parts: [{text: ''}],
+            parts: [{ text: '' }],
           },
         } as GenerateContentCandidate;
       }
       if (response.candidates[i].citationMetadata) {
-        if (!aggregatedResponse.candidates[i]
-                 .citationMetadata?.citationSources) {
+        if (!aggregatedResponse.candidates[i].citationMetadata?.citationSources) {
           aggregatedResponse.candidates[i].citationMetadata = {
             citationSources: [] as CitationSource[],
           };
         }
 
-
         let existingMetadata = response.candidates[i].citationMetadata ?? {};
 
         if (aggregatedResponse.candidates[i].citationMetadata) {
           aggregatedResponse.candidates[i].citationMetadata!.citationSources =
-              aggregatedResponse.candidates[i]
-                  .citationMetadata!.citationSources.concat(existingMetadata);
+            aggregatedResponse.candidates[i].citationMetadata!.citationSources.concat(existingMetadata);
         }
       }
-      aggregatedResponse.candidates[i].finishReason =
-        response.candidates[i].finishReason;
-      aggregatedResponse.candidates[i].finishMessage =
-        response.candidates[i].finishMessage;
-      aggregatedResponse.candidates[i].safetyRatings =
-        response.candidates[i].safetyRatings;
+      aggregatedResponse.candidates[i].finishReason = response.candidates[i].finishReason;
+      aggregatedResponse.candidates[i].finishMessage = response.candidates[i].finishMessage;
+      aggregatedResponse.candidates[i].safetyRatings = response.candidates[i].safetyRatings;
       if ('parts' in response.candidates[i].content) {
         for (const part of response.candidates[i].content.parts) {
           if (part.text) {
@@ -152,8 +140,7 @@ function aggregateResponses(
       }
     }
   }
-  aggregatedResponse.promptFeedback =
-    responses[responses.length - 1].promptFeedback;
+  aggregatedResponse.promptFeedback = responses[responses.length - 1].promptFeedback;
   return aggregatedResponse;
 }
 
@@ -161,9 +148,7 @@ function aggregateResponses(
 /**
  * Processes model responses from streamGenerateContent
  */
-export function processStream(
-  response: Response | undefined
-): StreamGenerateContentResult {
+export function processStream(response: Response | undefined): StreamGenerateContentResult {
   if (response === undefined) {
     throw new Error('Error processing stream because response === undefined');
   }
@@ -178,17 +163,17 @@ export function processStream(
   const allResponses: GenerateContentResponse[] = [];
   const responsePromise = new Promise<GenerateContentResponse>(
     // eslint-disable-next-line no-async-promise-executor
-    async resolve => {
+    async (resolve) => {
       // eslint-disable-next-line no-constant-condition
       while (true) {
-        const {value, done} = await reader1.read();
+        const { value, done } = await reader1.read();
         if (done) {
           resolve(aggregateResponses(allResponses));
           return;
         }
         allResponses.push(value);
       }
-    }
+    },
   );
   return {
     response: responsePromise,
@@ -209,6 +194,6 @@ export function processNonStream(response: any): GenerateContentResult {
   }
 
   return {
-    response: {candidates: []},
+    response: { candidates: [] },
   };
 }

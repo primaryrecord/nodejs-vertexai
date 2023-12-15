@@ -275,4 +275,4 @@ const CLIENT_INFO = {
   client_library_version: CLIENT_LIBRARY_VERSION,
 };
 
-export {CLIENT_INFO};
+export { CLIENT_INFO };

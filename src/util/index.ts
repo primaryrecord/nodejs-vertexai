@@ -16,4 +16,4 @@
  */
 
 export * as constants from './constants';
-export {postRequest} from './post_request';
+export { postRequest } from './post_request';
