@@ -3,7 +3,7 @@
   "description": "Vertex Generative AI client for Node.js",
   "version": "0.2.0",
   "license": "Apache-2.0",
-  "author": "Primary Record",
+  "author": "Google LLC",
   "engines": {
     "node": ">=14.0.0"
   },
