@@ -8,8 +8,10 @@
     "node": ">=14.0.0"
   },
   "homepage": "https://github.com/primaryrecord/nodejs-vertexai",
-  "repository": "primaryrecord/nodejs-vertexai",
-  "main": "build/src/index.js",
+  "repository": {
+    "url": "primaryrecord/nodejs-vertexai"
+  },
+  "main": "dist/index.js",
   "type": "commonjs",
   "scripts": {
     "compile": "rm -rf ./dist && tsc",
