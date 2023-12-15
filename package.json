@@ -1,7 +1,7 @@
 {
   "name": "@primaryrecord/vertexai",
   "description": "Vertex Generative AI client for Node.js",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "Apache-2.0",
   "author": "Google LLC",
   "engines": {
@@ -9,7 +9,7 @@
   },
   "homepage": "https://github.com/primaryrecord/nodejs-vertexai",
   "repository": {
-    "url": "primaryrecord/nodejs-vertexai"
+    "url": "git+primaryrecord/nodejs-vertexai"
   },
   "main": "dist/index.js",
   "type": "commonjs",

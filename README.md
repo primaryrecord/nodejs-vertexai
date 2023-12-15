@@ -1,6 +1,6 @@
 # Vertex AI Node.js SDK
 
-The Vertex AI Node.js SDK enables developers to use Google's state-of-the-art generative AI models (like Gemini) to build AI-powered features and applications.
+A fork of Google's Vertex AI Node.js SDK. Adds support for function calling and auth configuration. Also fixes a couple bugs.
 
 [See here](https://github.com/GoogleCloudPlatform/nodejs-docs-samples/tree/main/generative-ai/snippets) for detailed samples using the Vertex AI Node.js SDK.
 

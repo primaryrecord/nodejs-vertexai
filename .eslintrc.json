@@ -10,7 +10,8 @@
   ],
   "overrides": [],
   "ignorePatterns": [
-    "node_modules/*"
+    "node_modules/*",
+    "dist/*"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
