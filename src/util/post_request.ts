@@ -15,13 +15,15 @@
  * limitations under the License.
  */
 
+/**
+ * Modifications made by Primary Record in 2023.
+ * These modifications are licensed under the Apache License, Version 2.0.
+ * Modifications: formatting changes
+ */
+
 const API_BASE_PATH = 'aiplatform.googleapis.com';
 
-import {
-  GenerateContentRequest,
-  CLIENT_INFO,
-  CountTokensRequest,
-} from '../types/content';
+import { GenerateContentRequest, CLIENT_INFO, CountTokensRequest } from '../types/content';
 import * as constants from './constants';
 
 /**
@@ -37,12 +39,15 @@ export async function postRequest({
   apiEndpoint,
   apiVersion = 'v1',
 }: {
-  region: string; project: string; resourcePath: string; resourceMethod: string;
+  region: string;
+  project: string;
+  resourcePath: string;
+  resourceMethod: string;
   token: string;
   data: GenerateContentRequest | CountTokensRequest;
   apiEndpoint?: string;
   apiVersion?: string;
-}): Promise<Response|undefined> {
+}): Promise<Response | undefined> {
   const vertexBaseEndpoint = apiEndpoint ?? `${region}-${API_BASE_PATH}`;
 
   let vertexEndpoint = `https://${vertexBaseEndpoint}/${apiVersion}/projects/${project}/locations/${region}/${resourcePath}:${resourceMethod}`;
@@ -55,11 +60,11 @@ export async function postRequest({
   return await fetch(vertexEndpoint, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
       'User-Agent': CLIENT_INFO.user_agent,
-      'client_library_language': CLIENT_INFO.client_library_language,
-      'client_library_version': CLIENT_INFO.client_library_version,
+      client_library_language: CLIENT_INFO.client_library_language,
+      client_library_version: CLIENT_INFO.client_library_version,
     },
     body: JSON.stringify(data),
   });

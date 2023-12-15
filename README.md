@@ -6,10 +6,10 @@ The Vertex AI Node.js SDK enables developers to use Google's state-of-the-art ge
 
 ## Before you begin
 
-1.  [Select or create a Cloud Platform project](https://console.cloud.google.com/project).
-1.  [Enable billing for your project](https://cloud.google.com/billing/docs/how-to/modify-project).
-1.  [Enable the Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com).
-1.  [Set up authentication with a service account](https://cloud.google.com/docs/authentication/getting-started) so you can access the
+1. [Select or create a Cloud Platform project](https://console.cloud.google.com/project).
+1. [Enable billing for your project](https://cloud.google.com/billing/docs/how-to/modify-project).
+1. [Enable the Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com).
+1. [Set up authentication with a service account](https://cloud.google.com/docs/authentication/getting-started) so you can access the
     API from your local workstation.
 
 ## Installation
@@ -83,6 +83,7 @@ streamChat();
 ## Multi-part content generation: text and image
 
 ### Providing a Google Cloud Storage image URI
+
 ```typescript
 async function multiPartContent() {
     const filePart = {file_data: {file_uri: "gs://generativeai-downloads/images/scones.jpg", mime_type: "image/jpeg"}};
@@ -102,6 +103,7 @@ multiPartContent();
 ```
 
 ### Providing a base64 image string
+
 ```typescript
 async function multiPartContentImageString() {
     const b64imageStr = "yourbase64imagestr";

@@ -15,11 +15,17 @@
  * limitations under the License.
  */
 
+/**
+ * Modifications made by Primary Record in 2023.
+ * These modifications are licensed under the Apache License, Version 2.0.
+ * Modifications: formatting changes
+ */
+
 class GoogleAuthError extends Error {
-    constructor(message: string) {
-      super(message);
-      this.name = 'GoogleAuthError';
-    }
+  constructor(message: string) {
+    super(message);
+    this.name = 'GoogleAuthError';
+  }
 }
 
-export {GoogleAuthError};
+export { GoogleAuthError };
