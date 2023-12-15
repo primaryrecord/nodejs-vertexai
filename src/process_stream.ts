@@ -15,6 +15,12 @@
  * limitations under the License.
  */
 
+/**
+ * Modifications made by Primary Record in 2023.
+ * These modifications are licensed under the Apache License, Version 2.0.
+ * Modifications: formatting changes
+ */
+
 import {
   CitationSource,
   GenerateContentCandidate,
@@ -28,6 +34,7 @@ const responseLineRE = /^data\: (.*)\r\n/;
 
 // TODO: set a better type for `reader`. Setting it to
 // `ReadableStreamDefaultReader` results in an error (diagnostic code 2304)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function* generateResponseSequence(reader2: any): AsyncGenerator<GenerateContentResponse> {
   while (true) {
     const { value, done } = await reader2.read();
@@ -121,10 +128,12 @@ function aggregateResponses(responses: GenerateContentResponse[]): GenerateConte
           };
         }
 
-        let existingMetadata = response.candidates[i].citationMetadata ?? {};
+        const existingMetadata = response.candidates[i].citationMetadata ?? {};
 
         if (aggregatedResponse.candidates[i].citationMetadata) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           aggregatedResponse.candidates[i].citationMetadata!.citationSources =
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             aggregatedResponse.candidates[i].citationMetadata!.citationSources.concat(existingMetadata);
         }
       }
@@ -184,6 +193,7 @@ export function processStream(response: Response | undefined): StreamGenerateCon
 /**
  * Process model responses from generateContent
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function processNonStream(response: any): GenerateContentResult {
   if (response !== undefined) {
     // ts-ignore

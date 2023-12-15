@@ -72,7 +72,7 @@ export class VertexAI {
  */
 export class VertexAI_Internal {
   protected googleAuth: GoogleAuth;
-  private tokenInternalPromise?: Promise<any>;
+  private tokenInternalPromise?: Promise<string>;
 
   constructor(
     readonly project: string,
@@ -90,7 +90,7 @@ export class VertexAI_Internal {
       });
   }
 
-  get token(): Promise<any> {
+  get token(): Promise<string> {
     if (this.tokenInternalPromise) {
       return this.tokenInternalPromise;
     }
@@ -105,7 +105,7 @@ export class VertexAI_Internal {
     const tokenPromise = this.googleAuth.getAccessToken().catch((e) => {
       throw new GoogleAuthError(`${credential_error_message}\n${e}`);
     });
-    return tokenPromise;
+    return tokenPromise as Promise<string>;
   }
 
   getGenerativeModel(modelParams: ModelParams): GenerativeModel {
@@ -432,8 +432,8 @@ function validateGcsInput(contents: Content[]) {
 }
 
 function validateGenerationConfig(generation_config: GenerationConfig): GenerationConfig {
-  if ('top_k' in generation_config) {
-    if (!(generation_config.top_k! > 0) || !(generation_config.top_k! <= 40)) {
+  if (generation_config.top_k) {
+    if (!(generation_config.top_k > 0) || !(generation_config.top_k <= 40)) {
       delete generation_config.top_k;
     }
   }
