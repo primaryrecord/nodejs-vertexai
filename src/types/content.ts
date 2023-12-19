@@ -176,9 +176,11 @@ export interface FileDataPart extends BasePart {
 
 export interface FunctionCallPart extends BasePart {
   text?: never;
-  name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  args: Record<string, any>;
+  functionCall: {
+    name: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    args: Record<string, any>;
+  };
 }
 
 export declare type Part = TextPart | InlineDataPart | FileDataPart | FunctionCallPart;
